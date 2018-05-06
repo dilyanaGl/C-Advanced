@@ -1,0 +1,121 @@
+using System;
+using System.Linq;
+
+namespace RubikMatrix
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var dimensions = Console.ReadLine()
+                .Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse)
+                .ToArray();
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
+            var matrix = new int[rows][];
+
+            for (int i = 0; i < rows; i++)
+            {
+                matrix[i] = new int[cols];
+
+                for (int j = 0; j < rows; j++)
+                {
+                    matrix[i][j] = i * rows + j + 1;
+                }
+            }
+
+            int count = int.Parse(Console.ReadLine());
+
+            for (int i = 0; i < count; i++)
+            {
+                var command = Console.ReadLine().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                var rowOrCol = int.Parse(command[0]);
+                var moves = long.Parse(command[2]);
+
+                switch (command[1])
+                {
+                    case "up":
+                        matrix = MoveUp(matrix, rowOrCol, moves);
+                        break;
+                    case "down":
+                        matrix = MoveUp(matrix, rowOrCol, Math.Abs(matrix.Length - moves % matrix[rowOrCol].Length));
+                        break;
+                    case "left":
+                        matrix = MoveRight(matrix, rowOrCol, moves);
+                        break;
+                    case "right":
+                        matrix = MoveRight(matrix, rowOrCol, Math.Abs(matrix[rowOrCol].Length - moves % matrix[rowOrCol].Length));
+                        break;
+                }
+            }
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    var initValue = i * rows + j + 1;
+                    if (matrix[i][j] == initValue)
+                    {
+                        Console.WriteLine("No swap required");
+
+                    }
+                    else
+                    {
+                        var currentEl = matrix[i][j];
+                        var newIndexes = IterateThroughMatrix(matrix, initValue);
+                        if (newIndexes[0] != -1)
+                        {
+                            matrix[i][j] = matrix[newIndexes[0]][newIndexes[1]];
+                            matrix[newIndexes[0]][newIndexes[1]] = currentEl;
+                            Console.WriteLine($"Swap ({i}, {j}) with ({newIndexes[0]}, {newIndexes[1]})");
+                        }
+                    }
+                }
+            }
+        }
+
+        private static int[] IterateThroughMatrix(int[][] matrix, int peek)
+        {
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                if (Array.IndexOf(matrix[i], peek) != -1)
+                {
+                    return new int[] { i, Array.IndexOf(matrix[i], peek) };
+                }
+            }
+
+            return new[] { -1 };
+        }
+
+        private static int[][] MoveRight(int[][] matrix, int rowOrCol, long moves)
+        {
+            var temp = new int[matrix[rowOrCol].Length];
+            for (int i = 0; i < matrix[rowOrCol].Length; i++)
+            {
+                temp[i] = matrix[rowOrCol][(i + moves) % matrix[rowOrCol].Length];
+            }
+
+            matrix[rowOrCol] = temp;
+            return matrix;
+        }
+
+
+        private static int[][] MoveUp(int[][] matrix, int rowOrCol, long moves)
+        {
+            var temp = new int[matrix.Length];
+            for (int j = 0; j < matrix.Length; j++)
+            {
+                temp[j] = matrix[(j + moves) % matrix.Length][rowOrCol];
+            }
+
+            for (int i = 0; i < matrix.Length; i++)
+            {
+                matrix[i][rowOrCol] = temp[i];
+            }
+
+            return matrix;
+        }
+    }
+}
