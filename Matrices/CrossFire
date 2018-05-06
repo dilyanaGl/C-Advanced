@@ -1,0 +1,112 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace CrossFire
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var dimensions = Console.ReadLine()
+                .Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse)
+                .ToArray();
+            var rows = dimensions[0];
+            var cols = dimensions[1];
+
+            var matrix = FillMatrix(rows, cols);
+
+            while (true)
+            {
+                var input = Console.ReadLine().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+                if (input[0] == "Nuke")
+                {
+                    break;
+                }
+                else
+                {
+                    var rowIndex = int.Parse(input[0]);
+                    var colIndex = int.Parse(input[1]);
+                    var radius = int.Parse(input[2]);
+
+                    for (int i = rowIndex - radius; i <= rowIndex + radius; i++)
+                    {
+                        if (IsInMatrix(i, colIndex, matrix))
+                        {
+                            matrix[i][colIndex] = -1;
+                        }
+                    }
+
+                    for (int i = colIndex - radius; i <= colIndex + radius; i++)
+                    {
+                        if (IsInMatrix(rowIndex, i, matrix))
+                        {
+                            matrix[rowIndex][i] = -1;
+                        }
+                    }
+
+                }
+
+                FilterMatrix(matrix);
+            }
+
+            PrintMatrix(matrix);
+
+        }
+
+        private static void PrintMatrix(List<List<int>> matrix)
+        {
+            for (int i = 0; i < matrix.Count; i++)
+            {
+                Console.WriteLine(String.Join(" ", matrix[i]));
+            }
+        }
+
+        private static void FilterMatrix(List<List<int>> matrix)
+        {
+            for (int i = matrix.Count - 1; i >= 0; i--)
+            {
+                for (int j = matrix[i].Count - 1; j >= 0; j--)
+                {
+                    if (matrix[i][j] == -1)
+                    {
+                        matrix[i].RemoveAt(j);
+                    }
+                }
+
+                if (matrix[i].Count == 0)
+                {
+                    matrix.RemoveAt(i);
+                }
+            }
+        }
+
+        private static bool IsInMatrix(int currentRow, int currentCol, List<List<int>> matrix)
+        {
+            if (currentRow >= 0 && currentRow < matrix.Count &&
+                currentCol >= 0 && currentCol < matrix[currentRow].Count)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
+        private static List<List<int>> FillMatrix(int rows, int cols)
+        {
+            var matrix = new List<List<int>>();
+            for (int i = 0; i < rows; i++)
+            {
+                matrix.Add(new List<int>());
+                for (int j = 0; j < cols; j++)
+                {
+                    matrix[i].Add(j + i * cols + 1);
+                }
+            }
+
+            return matrix;
+        }
+    }
+}
