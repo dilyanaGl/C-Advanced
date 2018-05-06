@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace MatrixRotation
+{
+   public class Program
+    {
+        static void Main(string[] args)
+        {
+            var input = Console.ReadLine();
+            int degrees = int.Parse(new string(input
+                .SkipWhile(p => !Char.IsDigit(p))
+                .TakeWhile(p => Char.IsDigit(p))
+                .ToArray()));
+            degrees /= 90;
+            int spinTimes = degrees % 4;
+            var list = new List<string>();
+            
+            while (true)
+            {
+                var line = Console.ReadLine();
+                if (line == "END")
+                {
+                    break;
+                }
+                else
+                {
+                    list.Add(line);
+                }
+            }
+
+            int maxLength = list
+                .OrderByDescending(p => p.Length)
+                .First()
+                .Length;
+
+            switch (spinTimes)
+            {
+                case 0:
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        Console.WriteLine(string.Join(Environment.NewLine, list[i].PadRight(maxLength, ' ')));
+                    }
+                    break;
+
+                case 1:
+                    for (int j = 0; j < list.OrderByDescending(p => p.Length).First().Length; j++)
+                    {
+                        for (int i = list.Count - 1; i >= 0; i--)
+                        {
+                            Console.Write("{0}", j < list[i].Length ? list[i][j] : ' ');
+                        }
+
+                        Console.WriteLine();
+                    }
+                    break;
+
+                case 2:
+                    var matrix = new char[list.Count, list
+                        .OrderByDescending(p => p.Length)
+                        .First()
+                        .Length];
+                    for (int i = list.Count - 1; i >= 0; i--)
+                    {
+
+                        string currentStr =
+                            list[list.Count - 1 - i].PadRight(list
+                                .OrderByDescending(p => p.Length)
+                                .First()
+                                .Length, ' ');
+                        for (int j = matrix.GetLength(1) - 1; j >= 0; j--)
+                        {
+                            matrix[i, j] = currentStr[currentStr.Length - j - 1];
+                        }
+                    }
+                    DisplayMatrix(matrix);
+                    break;
+
+                case 3:
+                    var newMatrix = new char[list
+                        .OrderByDescending(p => p.Length)
+                        .First()
+                        .Length, list.Count];
+                    for (int k = 0; k < newMatrix.GetLength(0); k++)
+                    {
+                        for (int i = newMatrix.GetLength(1) - 1; i >= 0; i--)
+                        {
+                            int start = newMatrix.GetLength(0) - list[i].Length;
+                            if (k < start)
+                            {
+                                newMatrix[k, i] = ' ';
+                            }
+                            else
+                            {
+                                newMatrix[k, i] = list[i][list[i].Length - (k - start) - 1];
+                            }
+                        }
+                    }
+                    DisplayMatrix(newMatrix);
+                    break;
+            }
+        }
+
+        private static void DisplayMatrix(char[,] matrix)
+        {
+            for (int i = 0; i < matrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    Console.Write(matrix[i, j]);
+                }
+                Console.WriteLine();
+            }
+        }
+    }
+}
