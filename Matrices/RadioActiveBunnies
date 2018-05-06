@@ -1,0 +1,164 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+namespace RadioactiveBunnies
+{
+    public class Program
+    {
+        public static void Main()
+        {
+            var measures = Console.ReadLine().Split(' ').Select(int.Parse).ToArray();
+
+            var rows = measures[0];
+            var cols = measures[1];
+            var @set = new HashSet<int>(Enumerable.Range(0, rows * cols));
+            var playerRow = 0;
+            var playerCol = 0;
+
+            for (int i = 0; i < rows; i++)
+            {
+                string line = Console.ReadLine();
+
+                for (int j = 0; j < line.Length; j++)
+                {
+                    if (line[j] == 'B')
+                    {
+                        set.Remove(i * cols + j);
+                    }
+
+                    if (line[j] == 'P')
+                    {
+                        playerRow = i;
+                        playerCol = j;
+                    }
+                }
+            }
+
+            string command = Console.ReadLine();
+            int index = 0;
+            bool isOut = false;
+
+            while (true)
+            {
+                if (index < command.Length)
+                {
+                    switch (command[index])
+                    {
+                        case 'U':
+                            if (playerRow - 1 < 0)
+                            {
+                                isOut = true;
+                            }
+                            else
+                            {
+                                playerRow -= 1;
+                            }
+                            break;
+
+                        case 'D':
+                            if (playerRow + 1 >= rows)
+                            {
+                                isOut = true;
+                            }
+
+                            else
+                            {
+                                playerRow += 1;
+                            }
+                            break;
+
+                        case 'R':
+                            if (playerCol + 1 >= cols)
+                            {
+                                isOut = true;
+                            }
+
+                            else
+                            {
+                                playerCol += 1;
+                            }
+                            break;
+
+                        case 'L':
+                            if (playerCol - 1 < 0)
+                            {
+                                isOut = true;
+                            }
+
+                            else
+                            {
+                                playerCol -= 1;
+                            }
+                            break;
+                    }
+                }
+
+                index++;
+                var toBeRemoved = new HashSet<int>();
+
+                for (int i = 0; i < (rows * cols); i++)
+                {
+                    if (!@set.Contains(i))
+                    {
+                        toBeRemoved.Add(i - cols);
+                        toBeRemoved.Add(i + cols);
+                        if (i % cols != cols - 1)
+                        {
+                            toBeRemoved.Add(i + 1);
+                        }
+
+                        if (i % cols != 0)
+                        {
+                            toBeRemoved.Add(i - 1);
+                        }
+                    }
+                }
+
+                for (int i = 0; i < toBeRemoved.Count(); i++)
+                {
+                    if (@set.Contains(toBeRemoved.ElementAt(i)))
+                    {
+                        @set.Remove(toBeRemoved.ElementAt(i));
+                    }
+                }
+
+                toBeRemoved.Clear();
+                if (isOut)
+                {
+                    IterateMatrix(rows, cols, @set);
+                    Console.WriteLine($"won: {playerRow} {playerCol}");
+                    break;
+                }
+
+                if (!@set.Contains(playerRow * cols + playerCol))
+                {
+                    IterateMatrix(rows, cols, @set);
+                    Console.WriteLine($"dead: {playerRow} {playerCol}");
+                    return;
+                }
+            }
+        }
+
+        private static void IterateMatrix(int rows, int cols, HashSet<int> set)
+        {
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+
+                    if (@set.Contains(i * cols + j))
+                    {
+                        Console.Write('.');
+                    }
+                    else
+                    {
+                        Console.Write('B');
+                    }
+                }
+
+                Console.WriteLine();
+            }
+        }
+    }
+}
