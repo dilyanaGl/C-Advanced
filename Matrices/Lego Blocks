@@ -1,0 +1,87 @@
+using System;
+using System.Linq;
+
+namespace LegoBlocks
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int n = int.Parse(Console.ReadLine());
+            var jagged1 = new int[n][];
+            var jagged2 = new int[n][];
+
+            for (int i = 0; i < n * 2; i++)
+            {
+                var line = Console.ReadLine()
+                    .Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToArray();
+
+                if (i < n)
+                {
+                    jagged1[i] = FillJagged(line);
+                }
+                else
+                {
+                    line = ReverseArray(line);
+                    jagged2[i % n] = FillJagged(line);
+                }
+            }
+
+            long length = jagged1[0].Length + jagged2[0].Length;
+            for (int i = 1; i < n; i++)
+            {
+                if (jagged1[i].Length + jagged2[i].Length != length)
+                {
+                    Console.WriteLine("The total number of cells is: {0}", CountAllElements(jagged1) + CountAllElements(jagged2));
+                    return;
+                }
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                Console.Write("[");
+                Console.Write(string.Join(", ", jagged1[i]));
+                Console.Write(", " + String.Join(", ", jagged2[i]));
+                Console.WriteLine("]");
+            }
+        }
+
+        private static int CountAllElements(int[][] jagged)
+        {
+            int count = 0;
+            for (int i = 0; i < jagged.Length; i++)
+            {
+                count += jagged[i].Length;
+            }
+
+            return count;
+        }
+
+        private static int[] ReverseArray(int[] line)
+        {
+            var current = line[0];
+            for (int i = 0; i < line.Length / 2; i++)
+            {
+                line[i] = line[line.Length - 1 - i];
+                line[line.Length - i - 1] = current;
+                current = line[i + 1];
+            }
+
+            return line;
+        }
+
+        private static int[] FillJagged(int[] line)
+        {
+            var jagged = new int[line.Length];
+
+            for (int j = 0; j < line.Length; j++)
+            {
+                jagged[j] = line[j];
+            }
+
+            return jagged;
+        }
+    }
+}
