@@ -1,0 +1,113 @@
+using System.Collections.Generic;
+using System.Linq;
+using System;
+
+namespace TargetPractice
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            int[] measures = Console.ReadLine()
+                .Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse)
+                .ToArray();
+
+            var str = Console.ReadLine();
+            var shot = Console.ReadLine()
+                .Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse)
+                .ToArray();
+
+            var rowsCount = measures[0];
+            var colsCount = measures[1];
+            var rowIndex = shot[0];
+            var colIndex = shot[1];
+            var radius = shot[2];
+            var queue = new Queue<char>();
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                queue.Enqueue(str[i]);
+            }
+
+            var matrix = new char[rowsCount, colsCount];
+
+            for (int i = matrix.GetLength(0) - 1; i >= 0; i--)
+            {
+                if ((matrix.GetLength(0) - i - 1) % 2 == 0)
+                {
+                    for (int j = matrix.GetLength(1) - 1; j >= 0; j--)
+                    {
+                        matrix[i, j] = queue.Peek();
+                        queue.Enqueue(queue.Dequeue());
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < matrix.GetLength(1); j++)
+                    {
+                        matrix[i, j] = queue.Peek();
+                        queue.Enqueue(queue.Dequeue());
+                    }
+                }
+            }
+
+            for (int i = 0; i < rowsCount; i++)
+            {
+                for (int j = 0; j < colsCount; j++)
+                {
+                    var distance = Math.Sqrt(Math.Pow(Math.Abs(rowIndex - i), 2) + Math.Pow(Math.Abs(colIndex - j), 2));
+
+                    if (distance <= radius)
+                    {
+                        matrix[i, j] = ' ';
+                    }
+                }
+            }
+
+            for (int i = 0; i < colsCount; i++)
+            {
+                for (int j = rowsCount - 1; j >= 0; j--)
+                {
+                    if (matrix[j, i] == ' ')
+                    {
+                        var blankIndexes = new int[2];
+                        blankIndexes[0] = j;
+                        blankIndexes[1] = i;
+
+                        int index = IterateThroughColumn(matrix, blankIndexes);
+
+                        if (index >= 0)
+                        {
+                            matrix[blankIndexes[0], blankIndexes[1]] = matrix[index, blankIndexes[1]];
+                            matrix[index, blankIndexes[1]] = ' ';
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < rowsCount; i++)
+            {
+                for (int j = 0; j < colsCount; j++)
+                {
+                    Console.Write(matrix[i, j]);
+                }
+                Console.WriteLine();
+            }
+        }
+
+        private static int IterateThroughColumn(char[,] matrix, int[] blankIndexes)
+        {
+            for (int i = blankIndexes[0] - 1; i >= 0; i--)
+            {
+                if (matrix[i, blankIndexes[1]] != ' ')
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+    }
+}
